@@ -1,6 +1,6 @@
 import streamlit as st
-
-# ─── CSS personnalisé (harmonisé avec app.py) ────────────────────────────────
+ 
+# ─── CSS ─────────────────────────────────────────────
 st.markdown("""
 <style>
 .bloc-contact {
@@ -24,7 +24,7 @@ st.markdown("""
     margin-bottom: 8px;
 }
 .btn-appel {
-    display: inline-block;
+    display: block;
     background: #2E7D32;
     color: white !important;
     text-decoration: none !important;
@@ -32,7 +32,6 @@ st.markdown("""
     border-radius: 8px;
     font-size: 0.9rem;
     font-weight: 500;
-    width: 100%;
     text-align: center;
     margin-bottom: 10px;
 }
@@ -44,7 +43,6 @@ st.markdown("""
     color: #1B5E20;
     line-height: 1.6;
 }
-.horaires strong { display: block; font-weight: 600; margin-bottom: 2px; }
 .carte-annonce {
     background-color: #F1F8E9;
     padding: 18px 20px;
@@ -60,12 +58,12 @@ st.markdown("""
 }
 .carte-vendeur { font-size: 0.85rem; color: #5a5a56; margin-bottom: 6px; }
 .carte-prix { font-size: 1.1rem; color: #c47c2b; font-weight: 600; margin-bottom: 4px; }
-.note-spam { font-size: 0.72rem; color: #888; margin-top: 6px; font-style: italic; }
+.note-spam { font-size: 0.72rem; color: #888; margin-top: 8px; font-style: italic; }
 </style>
 """, unsafe_allow_html=True)
-
-
-# ─── Données (à remplacer par data/database.py quand la BDD sera prête) ─────
+ 
+ 
+# ─── Données vendeurs ─────────────────────────────────────────────────────────
 VENDEURS = [
     {
         "id": 1,
@@ -104,67 +102,60 @@ VENDEURS = [
         "emoji": "🌾"
     },
 ]
-
-
-def masquer_numero(tel_affiche: str) -> str:
-    """
-    US-07 — Critère 4 : Protection anti-robots
-    Masque le milieu du numéro par défaut.
-    Ex: +221 77 123 45 67  →  +221 77 *** ** 67
-    """
-    parties = tel_affiche.split(" ")
+ 
+ 
+def masquer_numero(tel: str) -> str:
+    """US-07 critère 4 — masque le numéro par défaut contre les robots."""
+    parties = tel.split(" ")
     if len(parties) >= 4:
-        masque = parties[:2] + ["***", "**"] + [parties[-1]]
-        return " ".join(masque)
-    return tel_affiche[:7] + " *** " + tel_affiche[-2:]
-
-
+        return " ".join(parties[:2] + ["***", "**"] + [parties[-1]])
+    return tel[:7] + " *** " + tel[-2:]
+ 
+ 
 def afficher_carte(vendeur: dict, reveler: bool = False):
-    """Affiche une carte annonce avec le bloc contact (US-07)."""
-
-    numero_affiche = vendeur["telephone_affiche"] if reveler else masquer_numero(vendeur["telephone_affiche"])
-    lien_tel = f"tel:{vendeur['telephone']}"
+    """US-07 — affiche une carte annonce avec le bloc contact complet."""
+ 
+    # Critère 4 : numéro masqué par défaut, révélé après clic
+    numero = vendeur["telephone_affiche"] if reveler else masquer_numero(vendeur["telephone_affiche"])
+ 
+    # Critère 2 : lien tel: pour appel direct sur mobile
+    lien_tel = "tel:" + vendeur["telephone"]
     prenom = vendeur["vendeur"].split()[0]
-
-    st.markdown(f"""
-    <div class="carte-annonce">
-        <div class="carte-titre">{vendeur['emoji']} {vendeur['nom_produit']}</div>
-        <div class="carte-vendeur">📍 {vendeur['vendeur']} — {vendeur['marche']}</div>
-        <div class="carte-prix">{vendeur['prix']}</div>
-
-        <div class="bloc-contact">
-            <div class="contact-label">📞 Contacter le vendeur</div>
-
-            <!-- US-07 critère 1 : numéro affiché -->
-            <div class="numero-ligne">📱 {numero_affiche}</div>
-
-            <!-- US-07 critère 2 : lien tel: cliquable sur mobile -->
-            <a href="{lien_tel}" class="btn-appel">📞 Appeler {prenom}</a>
-
-            <!-- US-07 critère 3 : horaires recommandés -->
-            <div class="horaires">
-                <strong>🕗 Horaires recommandés</strong>
-                {vendeur['horaires']} · {vendeur['details_horaires']}
-            </div>
-        </div>
-
-        <!-- US-07 critère 4 : note protection -->
-        <div class="note-spam">🔒 Numéro protégé contre les robots</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-
-# ─── Page principale ─────────────────────────────────────────────────────────
-st.markdown('<p style="font-size:2em; font-weight:bold; color:#1B5E20;">📞 Contact vendeurs</p>', unsafe_allow_html=True)
+ 
+    # Critère 1 : numéro affiché — Critère 3 : horaires
+    # Les commentaires HTML sont retirés du f-string pour éviter le rendu en texte brut
+    html = (
+        '<div class="carte-annonce">'
+        '<div class="carte-titre">' + vendeur["emoji"] + " " + vendeur["nom_produit"] + "</div>"
+        '<div class="carte-vendeur">📍 ' + vendeur["vendeur"] + " — " + vendeur["marche"] + "</div>"
+        '<div class="carte-prix">' + vendeur["prix"] + "</div>"
+        '<div class="bloc-contact">'
+        '<div class="contact-label">📞 Contacter le vendeur</div>'
+        '<div class="numero-ligne">📱 ' + numero + "</div>"
+        '<a href="' + lien_tel + '" class="btn-appel">📞 Appeler ' + prenom + "</a>"
+        '<div class="horaires">'
+        "<strong>🕗 Horaires recommandés</strong><br>"
+        + vendeur["horaires"] + " · " + vendeur["details_horaires"] +
+        "</div>"
+        "</div>"
+        '<div class="note-spam">🔒 Numéro protégé contre les robots</div>"'
+        "</div>"
+    )
+    st.markdown(html, unsafe_allow_html=True)
+ 
+ 
+# ─── Interface ────────────────────────────────────────────────────────────────
+st.markdown('<p style="font-size:2em;font-weight:bold;color:#1B5E20;">📞 Contact vendeurs</p>',
+            unsafe_allow_html=True)
 st.markdown("Trouvez et contactez directement les vendeurs agricoles.")
 st.divider()
-
+ 
 # Barre de recherche
 recherche = st.text_input(
     "🔍 Rechercher un produit ou un vendeur",
     placeholder="Ex : tomates, Sandaga, Aminata…"
 )
-
+ 
 # Filtrage
 vendeurs_filtres = [
     v for v in VENDEURS
@@ -173,28 +164,32 @@ vendeurs_filtres = [
         for k in ["nom_produit", "vendeur", "marche"]
     )
 ]
-
+ 
 if not vendeurs_filtres:
     st.info("Aucun vendeur trouvé.")
 else:
     st.markdown(f"**{len(vendeurs_filtres)} annonce(s) trouvée(s)**")
-    st.markdown("")
-
-    # Affichage en 2 colonnes (cohérent avec le layout="wide" de app.py)
+ 
+    # 2 colonnes — cohérent avec layout="wide" de app.py
     cols = st.columns(2)
     for i, vendeur in enumerate(vendeurs_filtres):
         cle = f"reveler_{vendeur['id']}"
         if cle not in st.session_state:
             st.session_state[cle] = False
-
+ 
         with cols[i % 2]:
             afficher_carte(vendeur, reveler=st.session_state[cle])
-
+ 
+            # Critère 4 : bouton pour révéler/masquer le numéro
             if not st.session_state[cle]:
-                if st.button("👁 Voir le numéro complet", key=f"voir_{vendeur['id']}", use_container_width=True):
+                if st.button("👁 Voir le numéro complet",
+                             key=f"voir_{vendeur['id']}",
+                             use_container_width=True):
                     st.session_state[cle] = True
                     st.rerun()
             else:
-                if st.button("🙈 Masquer", key=f"masquer_{vendeur['id']}", use_container_width=True):
+                if st.button("🙈 Masquer",
+                             key=f"masquer_{vendeur['id']}",
+                             use_container_width=True):
                     st.session_state[cle] = False
                     st.rerun()
