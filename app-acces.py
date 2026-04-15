@@ -48,9 +48,10 @@ with col_info:
     st.info("📖 **Consultation libre** — Parcourez toutes les annonces sans créer de compte.")
 with col_btn:
     if st.button("✨ S'inscrire", use_container_width=True):
-        st.switch_page("pages/inscription.py")
+        st.switch_page("pages/03_inscription.py")
 
 st.divider()
+
 
 # Introduction
 st.markdown("""
@@ -127,7 +128,7 @@ with col2:
         st.switch_page("pages/02_annonce.py")
 
     if st.button("🔑 Se connecter", use_container_width=True):
-        st.switch_page("pages/connexion.py")
+        st.switch_page("pages/03_connexion.py")
 
 st.divider()
 

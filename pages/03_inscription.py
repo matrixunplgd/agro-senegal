@@ -62,10 +62,10 @@ if st.button("Créer un compte", type="primary", use_container_width=True):
         time.sleep(1)
 
         # ✅ redirection correcte
-        st.switch_page("pages/connexion.py")
+        st.switch_page("pages/03_connexion.py")
 
 st.divider()
 
 # ── Retour ───────────────────────────────────────────
 if st.button("← Retour à la connexion", use_container_width=True):
-    st.switch_page("connexion.py")
+    st.switch_page("pages/03_connexion.py")

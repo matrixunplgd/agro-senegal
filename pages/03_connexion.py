@@ -68,7 +68,7 @@ if st.button("Se connecter", type="primary", use_container_width=True):
 
             st.success(f"✅ Bienvenue {user['nom']} !")
             time.sleep(1)
-            st.switch_page("pages/dashboard.py")
+            st.switch_page("pages/03_dashboard.py")
 
 st.divider()
 
@@ -80,7 +80,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 if st.button("📝 S'inscrire gratuitement", use_container_width=True):
-    st.switch_page("pages/inscription.py")
+    st.switch_page("pages/03_inscription.py")
 
 st.markdown("<br>", unsafe_allow_html=True)
 

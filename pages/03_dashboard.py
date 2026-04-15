@@ -130,7 +130,7 @@ st.subheader("🚀 Actions rapides")
 col1, col2 = st.columns(2)
 with col1:
     if st.button("📢 Publier une nouvelle annonce", use_container_width=True):
-        st.switch_page("pages/annonce.py")
+        st.switch_page("pages/02_annonce.py")
 with col2:
     if st.button("📋 Voir toutes les annonces", use_container_width=True):
-        st.switch_page("pages/consultation.py")
+        st.switch_page("pages/08_consultation.py")
