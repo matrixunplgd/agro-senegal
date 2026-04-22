@@ -1,6 +1,4 @@
 import streamlit as st
-import pandas as pd
-
 # Configuration de la page
 st.set_page_config(
     page_title="AgroSénégal",
@@ -80,6 +78,17 @@ st.subheader("🚀 Accès rapide")
 col1, col2 = st.columns(2)
 
 with col1:
+
+    if st.button("👤 Créer mon profil vendeur", use_container_width=True):
+        st.switch_page("pages/01_profil.py")
+
+    if st.button("📋 Voir les annonces", use_container_width=True):
+        st.switch_page("pages/08_consultation.py")
+
+with col2:
+    if st.button("📢 Publier une annonce", use_container_width=True):
+        st.switch_page("pages/02_annonce.py")
+
     st.markdown("**👤 Profils vendeurs populaires ci-dessous**")
 
     if st.button("📋 Voir les annonces", use_container_width=True, disabled=True):
@@ -89,10 +98,13 @@ with col2:
     if st.button("📢 Publier une annonce", use_container_width=True, disabled=True):
         st.info("US-02 bientôt disponible")
 
+
     if st.button("🔑 Se connecter", use_container_width=True):
         st.switch_page("pages/03_connexion.py")
 
 st.divider()
+
+
 
 st.subheader("📝 Inscription Vendeur")
 
@@ -240,12 +252,11 @@ with right_col:
 
 # Removed duplicate inscription section - using single form above
 
+
 # Footer
 st.markdown("""
 <div style="text-align: center; color: gray; font-size: 0.9em;">
     AgroSénégal © 2026 — Sprint 1 MVP | Développé avec ❤️ à Dakar
 </div>
 
-
-
-
+""", unsafe_allow_html=True)

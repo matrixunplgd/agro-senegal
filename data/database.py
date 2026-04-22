@@ -1,4 +1,6 @@
 
+
+
 import sqlite3
 import streamlit as st
 from datetime import datetime
@@ -38,7 +40,8 @@ def get_profiles():
     profiles = c.fetchall()
     conn.close()
     return [{'id': r[0], 'name': r[1], 'phone': r[2], 'location': r[3], 'market': r[4], 'photo': f"https://via.placeholder.com/200x200/2E7D32/FFFFFF?text={r[1][0]}", 'rating': 4.5, 'annonces': []} for r in profiles]
-=======
+
+
 import json
 import os
 
@@ -115,4 +118,14 @@ def save_annonce(annonce: dict):
     annonces = load_annonces()
     annonces.append(annonce)
     save_annonces(annonces)
+
+    
+def get_vendeur_by_id(vendeur_id: str):
+    vendeurs = load_vendeurs()
+    for vendeur in vendeurs:
+        if vendeur.get("id") == vendeur_id:
+            return vendeur
+    return None
+=======
+
 
