@@ -245,4 +245,7 @@ st.markdown("""
 <div style="text-align: center; color: gray; font-size: 0.9em;">
     AgroSénégal © 2026 — Sprint 1 MVP | Développé avec ❤️ à Dakar
 </div>
-""", unsafe_allow_html=True)
+
+
+
+
