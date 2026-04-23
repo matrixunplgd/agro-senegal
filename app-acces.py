@@ -47,11 +47,10 @@ col_info, col_btn = st.columns([3, 1])
 with col_info:
     st.info("📖 **Consultation libre** — Parcourez toutes les annonces sans créer de compte.")
 with col_btn:
-    if st.button("✨ S'inscrire", use_container_width=True):
+    if st.button("✨ S'inscrire", key="inscription_btn", use_container_width=True):  # ✅ KEY ADDED
         st.switch_page("pages/03_inscription.py")
 
 st.divider()
-
 
 # Introduction
 st.markdown("""
@@ -117,17 +116,17 @@ st.subheader("🚀 Accès rapide")
 col1, col2 = st.columns(2)
 
 with col1:
-    if st.button("👤 Créer mon profil vendeur", use_container_width=True):
+    if st.button("👤 Créer mon profil vendeur", key="creer_profil_btn", use_container_width=True):  # ✅ KEY ADDED
         st.switch_page("pages/01_profil.py")
 
-    if st.button("📋 Voir les annonces", use_container_width=True):
+    if st.button("📋 Voir les annonces", key="voir_annonces_btn", use_container_width=True):  # ✅ KEY ADDED
         st.switch_page("pages/consultation.py")
 
 with col2:
-    if st.button("📢 Publier une annonce", use_container_width=True):
+    if st.button("📢 Publier une annonce", key="publier_annonce_btn", use_container_width=True):  # ✅ KEY ADDED
         st.switch_page("pages/02_annonce.py")
 
-    if st.button("🔑 Se connecter", use_container_width=True):
+    if st.button("🔑 Se connecter", key="connexion_btn", use_container_width=True):  # ✅ KEY ADDED
         st.switch_page("pages/03_connexion.py")
 
 st.divider()

@@ -1,4 +1,7 @@
 import streamlit as st
+import pandas as pd
+import random
+
 # Configuration de la page
 st.set_page_config(
     page_title="AgroSénégal",
@@ -75,37 +78,24 @@ st.divider()
 # Navigation rapide
 st.subheader("🚀 Accès rapide")
 
-col1, col2 = st.columns(2)
+col_nav1, col_nav2 = st.columns(2)
 
-with col1:
-
-    if st.button("👤 Créer mon profil vendeur", use_container_width=True):
+with col_nav1:
+    if st.button("👤 Créer mon profil vendeur", key="creer_profil_main", use_container_width=True):
         st.switch_page("pages/01_profil.py")
 
-    if st.button("📋 Voir les annonces", use_container_width=True):
+    if st.button("📋 Voir les annonces", key="voir_annonces_main", use_container_width=True):
         st.switch_page("pages/08_consultation.py")
 
-with col2:
-    if st.button("📢 Publier une annonce", use_container_width=True):
-        st.switch_page("pages/02_annonce.py")
-
-    st.markdown("**👤 Profils vendeurs populaires ci-dessous**")
-
-    if st.button("📋 Voir les annonces", use_container_width=True, disabled=True):
-        st.info("US-08 bientôt disponible")
-
-with col2:
-    if st.button("📢 Publier une annonce", use_container_width=True, disabled=True):
-        st.info("US-02 bientôt disponible")
-
-
-    if st.button("🔑 Se connecter", use_container_width=True):
+with col_nav2:
+    if st.button("🔑 Se connecter", key="connexion_main", use_container_width=True):
         st.switch_page("pages/03_connexion.py")
+    
+    st.markdown("**👤 Profils vendeurs populaires ci-dessous**")
 
 st.divider()
 
-
-
+# Inscription Section
 st.subheader("📝 Inscription Vendeur")
 
 if 'sms_code' not in st.session_state:
@@ -135,15 +125,14 @@ with tab1:
         localisation = st.text_input("Localisation")
         marche = st.selectbox("Marché", marches_dakar)
         
-        col1, col2 = st.columns(2)
-        with col1:
+        col_form1, col_form2 = st.columns(2)
+        with col_form1:
             submitted = st.form_submit_button("S'inscrire")
-        with col2:
+        with col_form2:
             send_sms = st.form_submit_button("Envoyer SMS validation")
         
         if send_sms and telephone:
             if not st.session_state.verified_phone:
-                import random
                 code = random.randint(1000, 9999)
                 st.session_state.sms_code = code
                 st.success(f"Code SMS envoyé à {telephone} : **{code}** (mock)")
@@ -151,9 +140,9 @@ with tab1:
             else:
                 st.warning("Téléphone déjà validé !")
         
-        code_input = st.number_input("Code SMS reçu", min_value=1000, max_value=9999)
+        code_input = st.number_input("Code SMS reçu", min_value=1000, max_value=9999, key="sms_code_input")
     
-    validate_sms = st.button("Valider code")
+    validate_sms = st.button("Valider code", key="validate_sms_btn")
     if validate_sms and st.session_state.sms_code:
         if code_input == st.session_state.sms_code:
             st.session_state.verified_phone = telephone
@@ -161,15 +150,15 @@ with tab1:
             st.session_state.sms_code = None
         else:
             st.error("Code incorrect")
-        
-        if submitted and st.session_state.verified_phone:
-            if add_profile(nom, st.session_state.verified_phone, localisation, marche):
-                st.success("✅ Profil créé ! Visible ci-dessus.")
-                st.rerun()
-            else:
-                st.error("Téléphone déjà utilisé.")
-        elif submitted:
-            st.warning("Validez d'abord le téléphone par SMS.")
+    
+    if submitted and st.session_state.verified_phone:
+        if add_profile(nom, st.session_state.verified_phone, localisation, marche):
+            st.success("✅ Profil créé ! Visible ci-dessus.")
+            st.rerun()
+        else:
+            st.error("Téléphone déjà utilisé.")
+    elif submitted:
+        st.warning("Validez d'abord le téléphone par SMS.")
     
 with tab2:
     profiles = get_profiles()
@@ -178,11 +167,12 @@ with tab2:
     else:
         st.info("Aucun profil inscrit.")
 
+# Vendeurs populaires section
 st.subheader("⭐ Vendeurs populaires")
 
 db_profiles = get_profiles()
 seller_choices = [p['name'].lower().replace(' ', '-') for p in db_profiles] + ["moustapha-diop", "fatou-sarr"]
-seller_id = st.selectbox("Choisir un vendeur :", seller_choices)
+seller_id = st.selectbox("Choisir un vendeur :", seller_choices, key="seller_select")
 
 demo_sellers = {p['name'].lower().replace(' ', '-'): p for p in db_profiles}
 demo_sellers["moustapha-diop"] = {
@@ -226,11 +216,11 @@ with left_col:
     </div>
     """, unsafe_allow_html=True)
 
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("📞 Contacter", use_container_width=True):
+    col_contact1, col_contact2 = st.columns(2)
+    with col_contact1:
+        if st.button("📞 Contacter", key="contacter_btn", use_container_width=True):
             st.markdown(f"[Appeler {seller['phone']}](tel:{seller['phone']})")
-    with col2:
+    with col_contact2:
         st.markdown(f"**Tel:** `{seller['phone']}`")
 
 with right_col:
@@ -242,7 +232,7 @@ with right_col:
             hide_index=True,
             column_config={
                 "produit": "Produit",
-"prix": "Prix (CFA)",
+                "prix": "Prix (CFA)",
                 "stock": "Stock",
                 "date": "Date"
             }
@@ -250,13 +240,9 @@ with right_col:
     else:
         st.info("Aucune annonce.")
 
-# Removed duplicate inscription section - using single form above
-
-
 # Footer
 st.markdown("""
 <div style="text-align: center; color: gray; font-size: 0.9em;">
     AgroSénégal © 2026 — Sprint 1 MVP | Développé avec ❤️ à Dakar
 </div>
-
 """, unsafe_allow_html=True)
