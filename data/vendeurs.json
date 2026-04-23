@@ -1,0 +1,25 @@
+[
+  {
+    "id": "20260423055307909694",
+    "prenom": "Mouhamdoul Amine",
+    "nom": "Diagne",
+    "email": "aminediagne6@gmail.com",
+    "telephone": "776943458",
+    "mot_de_passe": "Unmatch6ix9ine",
+    "photo_url": "",
+    "categories": [
+      "Légumineuses",
+      "Produits transformés"
+    ],
+    "experience": "Moins d'1 an",
+    "capacite": "50 – 200 kg",
+    "bio": true,
+    "livraison": true,
+    "description": "J'aime mon pays",
+    "commune": "Grand-Dakar",
+    "marche": "Ocase",
+    "adresse": "PG8J+MWG",
+    "created_at": "2026-04-23T05:53:07.909827",
+    "actif": true
+  }
+]

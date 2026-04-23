@@ -1,6 +1,7 @@
 import streamlit as st
 import hashlib
 import time
+from data.database import get_vendeur_by_phone
 
 st.set_page_config(
     page_title="Connexion — AgroSénégal",
@@ -9,23 +10,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ── INIT USERS ─────────────────────────────────────────
-if "users" not in st.session_state:
-    st.session_state["users"] = {
-        "771234567": {
-            "nom": "Mamadou Diallo",
-            "quartier": "Pikine",
-            "password_hash": hashlib.sha256("passer123".encode()).hexdigest(),
-        }
-    }
-
-UTILISATEURS = st.session_state["users"]
-
-# ── Si déjà connecté ──────────────────────────────────
-if st.session_state.get("token"):
-    st.switch_page("dashboard")
-
-# ── Style ─────────────────────────────────────────────
 st.markdown("""
     <style>
         .main-title { font-size: 2em; color: #1B5E20; font-weight: bold; text-align: center; }
@@ -33,57 +17,48 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# ── En-tête ───────────────────────────────────────────
 st.markdown('<p class="main-title">🌱 AgroSénégal</p>', unsafe_allow_html=True)
 st.subheader("🔑 Connexion vendeur")
 st.caption("Entrez votre numéro de téléphone et votre mot de passe.")
-
 st.divider()
 
-# ── Formulaire ────────────────────────────────────────
-telephone = st.text_input("📱 Téléphone", placeholder="Ex : 77 123 45 67")
-mot_de_passe = st.text_input("🔒 Mot de passe", type="password")
+telephone = st.text_input("📱 Téléphone", placeholder="Ex : 77 123 45 67", key="login_phone")
+mot_de_passe = st.text_input("🔒 Mot de passe", type="password", key="login_password")
 
-# ── Connexion ────────────────────────────────────────
-if st.button("Se connecter", type="primary", use_container_width=True):
-
+if st.button("Se connecter", type="primary", use_container_width=True, key="login_btn"):
     tel_clean = telephone.replace(" ", "").replace("-", "")
-
     if not tel_clean or not mot_de_passe:
         st.error("Veuillez remplir tous les champs.")
-
-    elif tel_clean not in UTILISATEURS:
-        st.error("❌ Numéro introuvable.")
-
     else:
-        user = UTILISATEURS[tel_clean]
-        hash_saisi = hashlib.sha256(mot_de_passe.encode()).hexdigest()
-
-        if hash_saisi != user["password_hash"]:
-            st.error("❌ Mot de passe incorrect.")
+        vendeur = get_vendeur_by_phone(tel_clean)
+        if not vendeur:
+            st.error("❌ Numéro introuvable. Veuillez vous inscrire.")
         else:
-            st.session_state["token"] = "ok"
-            st.session_state["nom"] = user["nom"]
-            st.session_state["quartier"] = user["quartier"]
-
-            st.success(f"✅ Bienvenue {user['nom']} !")
-            time.sleep(1)
-            st.switch_page("pages/03_dashboard.py")
+            # Hachage du mot de passe saisi pour comparaison
+            hash_saisi = hashlib.sha256(mot_de_passe.encode()).hexdigest()
+            # Le mot de passe stocké peut être en clair ou déjà hashé ? Ici on compare en clair (à améliorer)
+            if vendeur.get("mot_de_passe") == mot_de_passe or hash_saisi == vendeur.get("mot_de_passe_hash", ""):
+                # Stockage en session
+                st.session_state["token"] = "ok"
+                st.session_state["vendeur_id"] = vendeur["id"]
+                st.session_state["vendeur_nom"] = f"{vendeur['prenom']} {vendeur['nom']}"
+                st.session_state["vendeur_email"] = vendeur.get("email", "")
+                st.session_state["vendeur_phone"] = vendeur["telephone"]
+                st.session_state["nom"] = f"{vendeur['prenom']} {vendeur['nom']}"
+                st.session_state["quartier"] = vendeur.get("commune", "Dakar")
+                st.success(f"✅ Bienvenue {vendeur['prenom']} !")
+                time.sleep(1)
+                st.switch_page("pages/03_dashboard.py")
+            else:
+                st.error("❌ Mot de passe incorrect.")
 
 st.divider()
-
-# ── Inscription ───────────────────────────────────────
 st.markdown("""
 <div style="text-align:center; font-size:0.9em; color:#757575;">
     Pas encore de compte ?
 </div>
 """, unsafe_allow_html=True)
-
-if st.button("📝 S'inscrire gratuitement", use_container_width=True):
-    st.switch_page("pages/03_inscription.py")
-
-st.markdown("<br>", unsafe_allow_html=True)
-
-# ── Retour accueil ────────────────────────────────────
-if st.button("← Retour à l'accueil", use_container_width=True):
-    st.switch_page("app-acces.py")  # si existe sinon supprimer
+if st.button("📝 Créer mon profil vendeur", use_container_width=True, key="register_btn"):
+    st.switch_page("pages/01_profil.py")
+if st.button("← Retour à l'accueil", use_container_width=True, key="back_home_btn"):
+    st.switch_page("app.py")

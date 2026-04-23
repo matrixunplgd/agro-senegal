@@ -1,0 +1,44 @@
+[
+  {
+    "id": "20260423055447726992",
+    "produit": "Oignons",
+    "prix": 15550.0,
+    "quantite": 1,
+    "unite": "sac",
+    "description": "Bonne Qualite source(Trust me bro)",
+    "photos": [
+      "uploads\\44d3f2c3-608b-4b5e-bb76-7d3bcd7b09a8.png"
+    ],
+    "vendeur_id": "20260423055307909694",
+    "created_at": "2026-04-23T05:54:47.727059",
+    "actif": true
+  },
+  {
+    "id": "20260423060827900076",
+    "produit": "oignons casamance",
+    "prix": 13200.0,
+    "quantite": 1,
+    "unite": "sac",
+    "description": "Bonne qualite via casa",
+    "photos": [
+      "uploads\\8f71cae8-bc09-4d10-8a6f-1a2b860779aa.jpg"
+    ],
+    "vendeur_id": "20260423055307909694",
+    "created_at": "2026-04-23T06:08:27.900162",
+    "actif": true
+  },
+  {
+    "id": "20260423060837439109",
+    "produit": "oignons casamance",
+    "prix": 13200.0,
+    "quantite": 1,
+    "unite": "sac",
+    "description": "Bonne qualite via casa",
+    "photos": [
+      "uploads\\cfade2ec-7029-4e9f-ac86-5c44fa2d811d.jpg"
+    ],
+    "vendeur_id": "20260423055307909694",
+    "created_at": "2026-04-23T06:08:37.439237",
+    "actif": true
+  }
+]

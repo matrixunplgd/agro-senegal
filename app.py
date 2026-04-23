@@ -1,16 +1,12 @@
 import streamlit as st
-import pandas as pd
-import random
 
-# Configuration de la page
 st.set_page_config(
     page_title="AgroSénégal",
     page_icon="🌱",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
-# Style CSS personnalisé
 st.markdown("""
     <style>
         .main-title {
@@ -31,24 +27,31 @@ st.markdown("""
             border-left: 5px solid #2E7D32;
             margin: 10px 0;
         }
+        @media (max-width: 768px) {
+            .main-title { font-size: 2em; }
+            .block-container { padding: 1rem 0.8rem !important; }
+        }
     </style>
 """, unsafe_allow_html=True)
 
-# En-tête principal
 st.markdown('<p class="main-title">🌱 AgroSénégal</p>', unsafe_allow_html=True)
 st.markdown('<p class="subtitle">Plateforme de mise en relation agricole à Dakar</p>', unsafe_allow_html=True)
 
+col_info, col_btn = st.columns([3, 1])
+with col_info:
+    st.info("📖 **Consultation libre** — Parcourez toutes les annonces sans créer de compte.")
+with col_btn:
+    if st.button("✨ S'inscrire", key="inscription_btn", use_container_width=True):
+        st.switch_page("pages/01_profil.py")
+
 st.divider()
 
-# Introduction
 st.markdown("""
 ### Bienvenue sur AgroSénégal !
 Connectez vendeurs agricoles et acheteurs sur les marchés de Dakar.
 """)
 
-# 3 colonnes de présentation
 col1, col2, col3 = st.columns(3)
-
 with col1:
     st.markdown("""
     <div class="card">
@@ -56,7 +59,6 @@ with col1:
         <p>Publiez vos annonces, gérez vos stocks et trouvez des acheteurs réguliers.</p>
     </div>
     """, unsafe_allow_html=True)
-
 with col2:
     st.markdown("""
     <div class="card">
@@ -64,7 +66,6 @@ with col2:
         <p>Comparez les prix, trouvez des produits frais près de chez vous.</p>
     </div>
     """, unsafe_allow_html=True)
-
 with col3:
     st.markdown("""
     <div class="card">
@@ -75,172 +76,45 @@ with col3:
 
 st.divider()
 
-# Navigation rapide
-st.subheader("🚀 Accès rapide")
+st.subheader("🛒 Dernières annonces — Dakar")
+st.caption("Aucun compte requis pour consulter.")
 
-col_nav1, col_nav2 = st.columns(2)
+annonces_exemple = [
+    {"emoji": "🍅", "titre": "Tomates fraîches",  "prix": "500 FCFA/kg", "lieu": "Pikine"},
+    {"emoji": "🧅", "titre": "Oignons de Potou",  "prix": "350 FCFA/kg", "lieu": "Thiaroye"},
+    {"emoji": "🌾", "titre": "Mil local",         "prix": "400 FCFA/kg", "lieu": "Guédiawaye"},
+    {"emoji": "🌶️", "titre": "Piments frais",     "prix": "800 FCFA/kg", "lieu": "Parcelles"},
+]
 
-with col_nav1:
-    if st.button("👤 Créer mon profil vendeur", key="creer_profil_main", use_container_width=True):
-        st.switch_page("pages/01_profil.py")
-
-    if st.button("📋 Voir les annonces", key="voir_annonces_main", use_container_width=True):
-        st.switch_page("pages/08_consultation.py")
-
-with col_nav2:
-    if st.button("🔑 Se connecter", key="connexion_main", use_container_width=True):
-        st.switch_page("pages/03_connexion.py")
-    
-    st.markdown("**👤 Profils vendeurs populaires ci-dessous**")
+cols = st.columns(2, gap="small")
+for i, a in enumerate(annonces_exemple):
+    with cols[i % 2]:
+        st.markdown(f"""
+        <div class="card">
+            <b>{a['emoji']} {a['titre']}</b><br>
+            💰 {a['prix']} &nbsp;|&nbsp; 📍 {a['lieu']}
+        </div>
+        """, unsafe_allow_html=True)
 
 st.divider()
 
-# Inscription Section
-st.subheader("📝 Inscription Vendeur")
+st.subheader("🚀 Accès rapide")
+col_nav1, col_nav2 = st.columns(2)
 
-if 'sms_code' not in st.session_state:
-    st.session_state.sms_code = None
-if 'verified_phone' not in st.session_state:
-    st.session_state.verified_phone = None
+with col_nav1:
+    if st.button("👤 Créer mon profil vendeur", key="creer_profil_btn", use_container_width=True):
+        st.switch_page("pages/01_profil.py")
+    if st.button("📋 Voir les annonces", key="voir_annonces_btn", use_container_width=True):
+        st.switch_page("pages/08_consultation.py")
 
-from data.database import init_db, add_profile, get_profiles
-init_db()
+with col_nav2:
+    if st.button("📢 Publier une annonce", key="publier_annonce_btn", use_container_width=True):
+        st.switch_page("pages/02_annonce.py")
+    if st.button("🔑 Se connecter", key="connexion_btn", use_container_width=True):
+        st.switch_page("pages/03_connexion.py")
 
-marches_dakar = [
-    "Marché Sandaga",
-    "Marché Colobane",
-    "Marché Tilène", 
-    "Marché Medina",
-    "Marché HLM V",
-    "Marché Parcelles",
-    "Marché Grand Dakar"
-]
+st.divider()
 
-tab1, tab2 = st.tabs(["📱 Inscription", "👥 Tous les profils"])
-
-with tab1:
-    with st.form("inscription_form"):
-        nom = st.text_input("Nom complet")
-        telephone = st.text_input("Téléphone (+221 XX XXX XXXX)")
-        localisation = st.text_input("Localisation")
-        marche = st.selectbox("Marché", marches_dakar)
-        
-        col_form1, col_form2 = st.columns(2)
-        with col_form1:
-            submitted = st.form_submit_button("S'inscrire")
-        with col_form2:
-            send_sms = st.form_submit_button("Envoyer SMS validation")
-        
-        if send_sms and telephone:
-            if not st.session_state.verified_phone:
-                code = random.randint(1000, 9999)
-                st.session_state.sms_code = code
-                st.success(f"Code SMS envoyé à {telephone} : **{code}** (mock)")
-                st.info("Entrez le code pour valider.")
-            else:
-                st.warning("Téléphone déjà validé !")
-        
-        code_input = st.number_input("Code SMS reçu", min_value=1000, max_value=9999, key="sms_code_input")
-    
-    validate_sms = st.button("Valider code", key="validate_sms_btn")
-    if validate_sms and st.session_state.sms_code:
-        if code_input == st.session_state.sms_code:
-            st.session_state.verified_phone = telephone
-            st.success("✅ Téléphone validé !")
-            st.session_state.sms_code = None
-        else:
-            st.error("Code incorrect")
-    
-    if submitted and st.session_state.verified_phone:
-        if add_profile(nom, st.session_state.verified_phone, localisation, marche):
-            st.success("✅ Profil créé ! Visible ci-dessus.")
-            st.rerun()
-        else:
-            st.error("Téléphone déjà utilisé.")
-    elif submitted:
-        st.warning("Validez d'abord le téléphone par SMS.")
-    
-with tab2:
-    profiles = get_profiles()
-    if profiles:
-        st.dataframe(pd.DataFrame(profiles))
-    else:
-        st.info("Aucun profil inscrit.")
-
-# Vendeurs populaires section
-st.subheader("⭐ Vendeurs populaires")
-
-db_profiles = get_profiles()
-seller_choices = [p['name'].lower().replace(' ', '-') for p in db_profiles] + ["moustapha-diop", "fatou-sarr"]
-seller_id = st.selectbox("Choisir un vendeur :", seller_choices, key="seller_select")
-
-demo_sellers = {p['name'].lower().replace(' ', '-'): p for p in db_profiles}
-demo_sellers["moustapha-diop"] = {
-    "name": "Moustapha Diop",
-    "photo": "https://via.placeholder.com/200x200/2E7D32/FFFFFF?text=M.Diop",
-    "location": "Sandaga, Dakar",
-    "market": "Marché Sandaga",
-    "phone": "+221 77 123 4567",
-    "rating": 4.8,
-    "annonces": [
-        {"produit": "Tomates", "prix": "250", "stock": "150 kg", "date": "15/10"},
-        {"produit": "Oignons", "prix": "180", "stock": "80 kg", "date": "14/10"},
-        {"produit": "Piments", "prix": "450", "stock": "20 kg", "date": "13/10"}
-    ]
-}
-demo_sellers["fatou-sarr"] = {
-    "name": "Fatou Sarr",
-    "photo": "https://via.placeholder.com/200x200/388E3C/FFFFFF?text=F.Sarr",
-    "location": "Colobane, Dakar",
-    "market": "Marché Colobane",
-    "phone": "+221 78 987 6543",
-    "rating": 4.9,
-    "annonces": [
-        {"produit": "Mangues", "prix": "350", "stock": "50 kg", "date": "15/10"},
-        {"produit": "Bananes", "prix": "120", "stock": "200 kg", "date": "14/10"}
-    ]
-}
-
-seller = demo_sellers[seller_id]
-
-left_col, right_col = st.columns(2)
-
-with left_col:
-    st.markdown(f"""
-    <div style='background: linear-gradient(135deg, #1B5E20 0%, #388E3C 100%); padding: 2rem; border-radius: 15px; color: white; text-align: center;'>
-        <img src='{seller['photo']}' style='width: 150px; height: 150px; border-radius: 50%; border: 5px solid white;'>
-        <h2 style='font-size: 2em;'>{seller['name']}</h2>
-        <div style='background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; display: inline-block; margin: 0.5rem;'>📍 {seller['location']}</div>
-        <div style='background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 20px; display: inline-block; margin: 0.5rem;'>🏪 {seller['market']}</div>
-        <p style='font-size: 1.2em;'>⭐ {seller['rating']}/5</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-    col_contact1, col_contact2 = st.columns(2)
-    with col_contact1:
-        if st.button("📞 Contacter", key="contacter_btn", use_container_width=True):
-            st.markdown(f"[Appeler {seller['phone']}](tel:{seller['phone']})")
-    with col_contact2:
-        st.markdown(f"**Tel:** `{seller['phone']}`")
-
-with right_col:
-    st.subheader("📋 Annonces actives")
-    if seller['annonces']:
-        st.dataframe(
-            pd.DataFrame(seller['annonces']),
-            use_container_width=True,
-            hide_index=True,
-            column_config={
-                "produit": "Produit",
-                "prix": "Prix (CFA)",
-                "stock": "Stock",
-                "date": "Date"
-            }
-        )
-    else:
-        st.info("Aucune annonce.")
-
-# Footer
 st.markdown("""
 <div style="text-align: center; color: gray; font-size: 0.9em;">
     AgroSénégal © 2026 — Sprint 1 MVP | Développé avec ❤️ à Dakar
